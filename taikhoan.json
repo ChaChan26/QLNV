@@ -1,0 +1,5 @@
+[
+    {"email": "admin", "mat_khau": "1234", "vai_tro": "Admin"},
+    {"email": "quanly", "mat_khau": "1234", "vai_tro": "QuanLy"},
+    {"email": "nhanvien", "mat_khau": "1234", "vai_tro": "NhanVien"}
+]

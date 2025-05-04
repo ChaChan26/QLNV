@@ -15,47 +15,36 @@ class ConNguoi:
     @property
     def ho_ten(self) -> str:
         return self._ho_ten
-
     @ho_ten.setter
     def ho_ten(self, ho_ten: str):
         self._ho_ten = ho_ten
-
     @property
     def ngay_sinh(self) -> str:
         return self._ngay_sinh
-
     @ngay_sinh.setter
     def ngay_sinh(self, ngay_sinh: str):
         self._ngay_sinh = ngay_sinh
-
     @property
     def gioi_tinh(self) -> str:
         return self._gioi_tinh
-
     @gioi_tinh.setter
     def gioi_tinh(self, gioi_tinh: str):
         self._gioi_tinh = gioi_tinh
-
     @property
     def que_quan(self) -> str:
         return self._que_quan
-
     @que_quan.setter
     def que_quan(self, que_quan: str):
         self._que_quan = que_quan
-
     @property
     def email(self) -> str:
         return self._email
-
     @email.setter
     def email(self, email: str):
         self._email = email
-
     @property
     def sdt(self) -> str:
         return self._sdt
-
     @sdt.setter
     def sdt(self, sdt: str):
         self._sdt = sdt
@@ -105,23 +94,18 @@ class NhanVien(ConNguoi):
     @property
     def ma_nv(self) -> str:
         return self._ma_nv
-
     @ma_nv.setter
     def ma_nv(self, ma_nv: str):
         self._ma_nv = ma_nv
-
     @property
     def phong_ban(self) -> str:
         return self._phong_ban
-
     @phong_ban.setter
     def phong_ban(self, phong_ban: str):
         self._phong_ban = phong_ban
-
     @property
     def nam_vao_lam(self) -> int:
         return self._nam_vao_lam
-
     @nam_vao_lam.setter
     def nam_vao_lam(self, nam_vao_lam: int):
         self._nam_vao_lam = nam_vao_lam
@@ -185,6 +169,20 @@ class DieuKhien:
         self._ds = DanhSachNhanVien()
         self._vai_tro = ""
         self._du_lieu = {}
+        self._nguoi_dung = self.docTaiKhoan()
+
+    def docTaiKhoan(self) -> List[dict]:
+        try:
+            with open("taikhoan.json", "r", encoding="utf-8") as f:
+                return json.load(f)
+        except FileNotFoundError:
+            print("Không tìm thấy tệp taikhoan.json. Vui lòng tạo tệp với danh sách tài khoản.")
+            return []
+
+    def luuTaiKhoan(self) -> None:
+        with open("taikhoan.json", "w", encoding="utf-8") as f:
+            json.dump(self._nguoi_dung, f, ensure_ascii=False)
+        print("Đã lưu danh sách tài khoản vào taikhoan.json")
 
     def khoi_tao(self, goc, vai_tro="nhanvien") -> None:
         self._vai_tro = vai_tro
@@ -197,10 +195,10 @@ class DieuKhien:
         try:
             ma_nv = input("Nhập mã nhân viên: ")
             ho_ten = input("Nhập họ tên: ")
-            ngay_sinh = input("Nhập ngày sinh (DD-MM-YY): ")
-            ngay_sinh = datetime.strptime(ngay_sinh, "%d-%m-%y").strftime("%d-%m-%y")
-            gioi_tinh = input("Nhập giới tính (Nam/Nữ): ")
-            if gioi_tinh not in ["Nam", "Nữ"]:
+            ngay_sinh = input("Nhập ngày sinh (DD-MM-YYYY): ")
+            ngay_sinh = datetime.strptime(ngay_sinh, "%d-%m-%Y").strftime("%d-%m-%Y")
+            gioi_tinh = input("Nhập giới tính (Nam/Nu): ")
+            if gioi_tinh not in ["Nam", "Nu"]:
                 raise ValueError("Giới tính không hợp lệ")
             que_quan = input("Nhập quê quán: ")
             email = input("Nhập email: ")
@@ -251,12 +249,9 @@ class DieuKhien:
 def chinh():
     dk = DieuKhien()
     
-    # Thêm người dùng mẫu
-    nguoi_dung = [
-        {"email": "admin@mail.com", "mat_khau": "admin123", "vai_tro": "Admin"},
-        {"email": "ql@mail.com", "mat_khau": "ql123", "vai_tro": "QuanLy"},
-        {"email": "nv@mail.com", "mat_khau": "nv123", "vai_tro": "NhanVien"}
-    ]
+    if not dk._nguoi_dung:
+        print("Chương trình không thể chạy vì thiếu tệp tài khoản.")
+        return
 
     while True:
         print("\n=== HỆ THỐNG QUẢN LÝ NHÂN VIÊN ===")
@@ -278,7 +273,7 @@ def chinh():
 
         email = input("Nhập email: ")
         mat_khau = input("Nhập mật khẩu: ")
-        for nd in nguoi_dung:
+        for nd in dk._nguoi_dung:
             if nd["email"] == email and nd["mat_khau"] == mat_khau:
                 dk.khoi_tao(None, vai_tro=nd["vai_tro"])
                 print(f"Đăng nhập thành công: {email} ({nd['vai_tro']})")
@@ -338,9 +333,10 @@ def chinh():
             elif lua_chon == "9" and dk._vai_tro == "Admin":
                 email_moi = input("Nhập email người dùng: ")
                 vai_tro_moi = input("Nhập vai trò mới (NhanVien/QuanLy/Admin): ")
-                for nd in nguoi_dung:
+                for nd in dk._nguoi_dung:
                     if nd["email"] == email_moi:
                         nd["vai_tro"] = vai_tro_moi
+                        dk.luuTaiKhoan()
                         print("Phân quyền thành công")
                         break
                 else:
